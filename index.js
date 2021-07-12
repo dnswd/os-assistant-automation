@@ -17,18 +17,14 @@ async function entry() {
     
     // // browser.close()
 
+    // const students = ['dnswd']
     const students = await getStudentsArray();
-    const schema = Grader.buildSchema(students)
+    Grader.buildSchema(students)
     const hasRepo = await allHasRepo(students)
-    console.log(hasRepo.length)
-    sleep(1000)
     const hasWeek = await allHasWeek(hasRepo)
-    console.log(hasWeek.length)
-    sleep(1000)
-    console.log(schema)
-    // await allHasBacklink(hasWeek)
-    // await allHasTop10(hasWeek)
-    // await Grader.writeReport()
+    await allHasBacklink(hasWeek)
+    await allHasTop10(hasWeek)
+    await Grader.writeReport()
 
     return Promise.resolve()
 }

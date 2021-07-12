@@ -5,6 +5,7 @@ import { JSDOM } from 'jsdom'
 
 /**
  * These code are so bad, Adopro lecturers would cringe
+ * May god forgive me for writing this heresy
  */
 
 async function hasRepo(student) {
@@ -16,9 +17,12 @@ async function hasRepo(student) {
         isAlive = await urlExist(link)
     } while (!isAlive && retry--);
 
-    if (!isAlive) Grader.repoNotExist(student)
+    if (!isAlive) {
+        Grader.repoNotExist(student)
+        return Promise.reject(student)
+    }
 
-    return (!isAlive) ? Promise.reject(student) : Promise.resolve(student)
+    return Promise.resolve(student)
 }
 
 async function allHasRepo(students) {
@@ -45,10 +49,9 @@ async function hasWeek(student) {
     if (isAlive) {
         Grader.existWeek(student)
         return Promise.resolve(student)
-    } else {
-        Grader.weekNotExist(student)
-        return Promise.reject(student)
     }
+    Grader.weekNotExist(student)
+    return Promise.reject(student)
 }
 
 async function allHasWeek(students) {
@@ -62,71 +65,77 @@ async function allHasWeek(students) {
 }
 
 async function hasBacklink(student) {
-    const link = `https://${username}.github.io/${repo}/`
-    const dom = await JSDOM.fromURL(link)
-
-    // let retry = parseInt(process.env.retry)
-    // let dom;
-    // do {
-    //     dom = await JSDOM.fromURL(link)
-    // } while (!dom && retry--)
+    const link = `https://${student}.github.io/${process.env.repo}/`
+    let dom
     
-    const anchors = dom.window.document.querySelectorAll('a[href]')
-    anchors = Array.from(anchors)
-                   .filter(a => a.href.includes(`/${repo}/W${week}`) || a.href.includes(`/${repo}/w${week}`))
-
+    do {
+        try {
+            dom = await JSDOM.fromURL(link)
+        } catch(err) { }
+    } while (!dom)
+    
+    let anchors = dom.window.document.querySelectorAll('a[href]')
+    anchors = Array.from(anchors).filter(a => {
+        return a.href.includes(`/${process.env.repo}/W${process.env.week}`) || a.href.includes(`/${process.env.repo}/w${process.env.week}`)
+    })
     
     if (anchors.length > 0) {
         Grader.isAccessible(student)
         return Promise.resolve(student)
-    } else {
-        Grader.notAccessible(student)
-        return Promise.reject(student)
     }
+    Grader.notAccessible(student)
+    return Promise.reject(student)
 }
 
 async function allHasBacklink(students) {
     const limit = plimit(parseInt(process.env.pool))
     const checkUp = students.map((student) => limit(hasBacklink, student))
     const result = await Promise.allSettled(checkUp)
-    const failed = result.filter(checked => checked.status != 'rejected')
-    .map(student => student.value)
-    
-    return Promise.resolve(failed)
+    const fulfilled = result.filter(checked => checked.status != 'rejected')
+                         .map(student => student.value)
+
+    return Promise.resolve(fulfilled)
 }
 
 async function checkTop10(student) {
-    const link = `https://${username}.github.io/${repo}/W${week}/`
-    const dom = await JSDOM.fromURL(link)
+    const link = `https://${student}.github.io/${process.env.repo}/W${process.env.week}/`
+    let dom
     
-    // let retry = parseInt(process.env.retry)
-    // let dom;
-    // do {
-    //     dom = await JSDOM.fromURL(link)
-    // } while (!response && retry--)
+    do {
+        try {
+            dom = await JSDOM.fromURL(link)
+        } catch(err) {
+            try {
+                dom = await JSDOM.fromURL(link.toLowerCase())
+            } catch(err) { }
+         }
+    } while (!dom)
     
-    let links = await dom.window.document.querySelectorAll('ol li a[href]:first-child')
-    if (links.length === 0) 
-        links = await dom.window.document.querySelectorAll('ul li a[href]:first-child')
-    if (links.length === 0) 
-    links = await dom.window.document.querySelectorAll('h2 a[href]:first-child')
-    if (links.length === 0) 
-        links = await dom.window.document.querySelectorAll('h3 a[href]:first-child')
-    if (links.length === 0) 
-    links = await dom.window.document.querySelectorAll('h4 a[href]:first-child')
-    if (links.length === 0) 
-    links = await dom.window.document.querySelectorAll('h5 a[href]:first-child')
-    if (links.length === 0) 
-    links = await dom.window.document.querySelectorAll('h6 a[href]:first-child')
-    if (links.length === 0) 
-    links = await dom.window.document.querySelectorAll('a[href]')
+    let anchors = await dom.window.document.querySelectorAll('ol li a[href]:first-child')
+    if (anchors.length === 0) 
+        anchors = await dom.window.document.querySelectorAll('ul li a[href]:first-child')
+    if (anchors.length === 0) 
+        anchors = await dom.window.document.querySelectorAll('h2 a[href]:first-child')
+    if (anchors.length === 0) 
+        anchors = await dom.window.document.querySelectorAll('h3 a[href]:first-child')
+    if (anchors.length === 0) 
+        anchors = await dom.window.document.querySelectorAll('h4 a[href]:first-child')
+    if (anchors.length === 0) 
+        anchors = await dom.window.document.querySelectorAll('h5 a[href]:first-child')
+    if (anchors.length === 0) 
+        anchors = await dom.window.document.querySelectorAll('h6 a[href]:first-child')
+    if (anchors.length === 0) 
+        anchors = await dom.window.document.querySelectorAll('a[href]')
     
     // in case the bottom-most query is reached, filter links from the same site
-    links = Array.from(anchors)
-                 .filter(a => !a.href.includes(`/${repo}/W${week}`) || !a.href.includes(student))
+    const links = Array.from(anchors)
+                       .map(a => a.href)
+                       .filter(a => !a.includes(`/${process.env.repo}/W${process.env.week}`) || 
+                                    !a.includes(`/${process.env.repo}/w${process.env.week}`) || 
+                                    !a.includes(student))
 
     const limit = plimit(10)
-    const checkUp = students.map((student) => limit(urlExist, student))
+    const checkUp = links.map((link) => limit(urlExist, link))
     const result = await Promise.allSettled(checkUp)
     const active = result.filter(checked => checked.status != 'rejected')
                          .map(student => student.value)
@@ -134,12 +143,11 @@ async function checkTop10(student) {
     if (active.length > 9) {
         Grader.existLinks(student)
         return Promise.resolve(student)
-    } else {
-        const inactive = result.filter(checked => checked.status == 'rejected')
-                             .map(student => student.reason)
-        Grader.linksNotExist(student, inactive)
-        return Promise.reject(student)
     }
+    const inactive = result.filter(checked => checked.status == 'rejected')
+                           .map(student => student.reason)
+    Grader.linksNotExist(student, inactive)
+    return Promise.reject(student)
 }
 
 async function allHasTop10(students) {

@@ -13,16 +13,23 @@ entirely.
    npm i
    ```
    This will also install browser drivers for WebKit, Chrome, and Firefox.  
-   If you want to install one specific browser, you can use [playwright flavors](https://github.com/microsoft/playwright/issues 812#issuecomment-581501050)
+   If you want to install one specific browser, you can use [playwright flavors](https://github.com/microsoft/playwright/issues/812#issuecomment-581501050)
 
 ## TODO
-- [ ] Implement interactive CLI for assisting manual review
-- [ ] Better rejection handling
-- [ ] Refactor for easy grader scheme change/addition
+- [ ] Assisting manual review
+  - [ ] CLI
+  - [ ] Playwright step function
+  - [ ] Listen to key events
+  - [ ] Save current state for later work
+- [X] Better rejection handling (somewhat done)
+- [X] Refactor for easy grader scheme change/addition
 - [ ] Implement teaching assistant work time recorder
 - [X] Record faulty/error links inside scheme for manual review (?)
 
 ## Bug
 - [X] Concurrency issue (inconsistent result)
+  - Fixed by utilizing async pools.  
+    Using Binary search, I conclude that result would be consistent with pool size < 80.
+    But not always guaranteed. Hence manual review would be able to override automatic review.
 
 Copyright (C) Dennis A. Walangadi 2021
