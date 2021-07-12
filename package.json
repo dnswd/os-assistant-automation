@@ -1,0 +1,21 @@
+{
+  "name": "os-assist",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "jsdom": "^16.6.0",
+    "ky": "^0.28.5",
+    "mkdirp": "^1.0.4",
+    "p-limit": "^3.1.0",
+    "url-exist": "^3.0.0"
+  }
+}
