@@ -25,7 +25,7 @@ async function entry() {
     await allHasBacklink(hasWeek)
     await allHasTop10(hasWeek)
     await Grader.writeReport()
-
+    await Grader.saveState()
     return Promise.resolve()
 }
 
@@ -48,4 +48,4 @@ if (args.length == 2) {
     process.env['week'] = '01';
 }
 
-entry().then(() => { console.log('bye!') });
+entry().then(() => { console.log('bye!'); process.exit(0) });

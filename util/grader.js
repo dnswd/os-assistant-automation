@@ -17,7 +17,10 @@ const Grader = (() => {
         instance[username]['failed']['repo'] = 1;
     }
 
-    // browser.js/checkWeek
+    function repoUnreachable(username) {
+        instance[username]['failed']['repounreachable'] = 1;
+    }
+
     function existWeek(username) {
         instance[username]['data'][0] = 1;
     }
@@ -26,31 +29,26 @@ const Grader = (() => {
         instance[username]['failed']['week'] = `W${process.env.week}`;
     }
     
-    // browser.js/checkAccessible
+    function weekUnreachable(username) {
+        instance[username]['failed']['weekunreachable'] = `W${process.env.week}`;
+    }
+    
     function isAccessible(username) {
         instance[username]['data'][1] = 1;
     }
-    // browser.js/checkAccessible
+
     function notAccessible(username) {
         instance[username]['failed']['backlink'] = `/${process.env.repo}/W${process.env.week}`;
     }
     
-    // browser.js/countAlive
     function existLinks(username) {
         instance[username]['data'][2] = 1;
     }
     
-    // browser.js/countAlive
     function linksNotExist(username, links) {
         instance[username]['failed']['top10'] = links;
     }
 
-    // record top10 links
-    function saveLinks(username, links) {
-        instance[username]['links'] = links
-    }
-
-    // TODO: Write to file here
     async function writeReport() {
         const [repo, week] = [process.env.repo, process.env.week]
         const week_report = path.join(process.cwd(), repo, `W${week}`)
@@ -72,6 +70,23 @@ const Grader = (() => {
         return Promise.resolve()
     }
 
+    async function saveState() {
+        const [repo, week] = [process.env.repo, process.env.week]
+        const week_report = path.join(process.cwd(), repo, `W${week}`)
+
+        try {
+            await mkdirp(week_report)
+        } catch(err) {
+            console.error('Can\'t create directory: ' + week_report)
+            process.exit(1)
+        }
+    
+        await fs.promises.writeFile(path.join(week_report, 'state.json'), 
+                                    JSON.stringify(instance, null, 2), 'utf8')
+       
+        return Promise.resolve()
+    }
+
     return {
         buildSchema: (usernames) => {
             if (!instance) {
@@ -83,14 +98,16 @@ const Grader = (() => {
             return (!!instance) ? instance : null
         },
         repoNotExist,
+        repoUnreachable,
         existWeek,
         weekNotExist,
         isAccessible,
         notAccessible,
         existLinks,
         linksNotExist,
-        saveLinks,
-        writeReport
+        weekUnreachable,
+        writeReport,
+        saveState
     }
 })()
 
