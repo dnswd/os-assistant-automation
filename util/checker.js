@@ -4,7 +4,7 @@ import plimit from 'p-limit'
 import { JSDOM } from 'jsdom'
 
 /**
- * These code are so bad, Adopro lecturers would cringe
+ * These code are so bad, Adpro lecturers would cringe
  * May god forgive me for writing this heresy
  */
 

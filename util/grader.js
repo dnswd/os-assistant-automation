@@ -87,6 +87,21 @@ const Grader = (() => {
         return Promise.resolve()
     }
 
+    async function loadState() {
+        const [repo, week] = [process.env.repo, process.env.week]
+        const week_report = path.join(process.cwd(), repo, `W${week}`)
+    
+        try {
+            const read = await fs.promises.readFile(path.join(week_report, 'state.json'), 'utf8')
+            instance = JSON.parse(read)
+            return Promise.resolve(true)
+        } catch (err) {
+            return Promise.resolve(false)
+        }
+
+       
+    }
+
     return {
         buildSchema: (usernames) => {
             if (!instance) {
@@ -107,7 +122,8 @@ const Grader = (() => {
         linksNotExist,
         weekUnreachable,
         writeReport,
-        saveState
+        saveState,
+        loadState
     }
 })()
 
