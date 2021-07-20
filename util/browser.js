@@ -2,6 +2,10 @@ import Grader from './grader.js'
 import IT from './iterator.js'
 import { chromium } from 'playwright' // change this according to your playwright-flavor
 import { getTop10Links } from './checker.js'
+import readline from 'readline';
+import { stderr } from 'process';
+readline.emitKeypressEvents(process.stdin);
+process.stdin.setRawMode(true);
 
 let browser;
 let ctx;
@@ -25,24 +29,26 @@ let students;
             const it = IT(links.value)
             const check = await ctx.newPage()
 
-            while (true) {
-                let { value, tip } = it.next()
-                if (tip) break
-                try {
-                    await check.goto(value, { timeout: 0, waitUntil: "load" })
-                } catch (error) { }
-                await new Promise(r => setTimeout(r, 3000));
-            } 
-            console.log('done')
-            while (true) {
-                let { value, tip } = it.back()
-                if (tip) break
-                try {
-                    await check.goto(value, { timeout: 0, waitUntil: "load" })
-                } catch (error) { }
-                await new Promise(r => setTimeout(r, 3000));
-            } 
-            console.log('done 2')
+            process.stdin.on('data')
+
+            // while (true) {
+            //     let { value, tip } = it.next()
+            //     if (tip) break
+            //     try {
+            //         await check.goto(value, { timeout: 0, waitUntil: "load" })
+            //     } catch (error) { }
+            //     await new Promise(r => setTimeout(r, 3000));
+            // } 
+            // console.log('done')
+            // while (true) {
+            //     let { value, tip } = it.back()
+            //     if (tip) break
+            //     try {
+            //         await check.goto(value, { timeout: 0, waitUntil: "load" })
+            //     } catch (error) { }
+            //     await new Promise(r => setTimeout(r, 3000));
+            // } 
+            // console.log('done 2')
         }
     }
     

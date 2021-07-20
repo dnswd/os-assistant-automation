@@ -13,7 +13,7 @@ const Grader = (() => {
         return scheme
     }
     
-    function repoNotExist(username, links) {
+    function repoNotExist(username) {
         instance[username]['failed']['repo'] = 1;
     }
 
@@ -48,6 +48,11 @@ const Grader = (() => {
     function linksNotExist(username, links) {
         instance[username]['failed']['top10'] = links;
     }
+    
+    function startManualReview(username) {
+        const data = instance[username].get('manual', false)
+        if (!data) instance[username]['manual'] = [0, 0, 0, 0, 0, 0]
+    }
 
     async function writeReport() {
         const [repo, week] = [process.env.repo, process.env.week]
@@ -69,6 +74,7 @@ const Grader = (() => {
         writer.end()
         return Promise.resolve()
     }
+
 
     async function saveState() {
         const [repo, week] = [process.env.repo, process.env.week]
@@ -98,8 +104,6 @@ const Grader = (() => {
         } catch (err) {
             return Promise.resolve(false)
         }
-
-       
     }
 
     return {
@@ -114,13 +118,19 @@ const Grader = (() => {
         },
         repoNotExist,
         repoUnreachable,
+
         existWeek,
         weekNotExist,
+
         isAccessible,
         notAccessible,
+
         existLinks,
         linksNotExist,
+        
         weekUnreachable,
+        startManualReview,
+
         writeReport,
         saveState,
         loadState
