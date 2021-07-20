@@ -85,7 +85,8 @@ async function hasBacklink(student) {
     
     let anchors = dom.window.document.querySelectorAll('a[href]')
     anchors = Array.from(anchors).filter(a => {
-        return a.href.includes(`/${process.env.repo}/W${process.env.week}`) || a.href.includes(`/${process.env.repo}/w${process.env.week}`)
+        return a.href.includes(`/${process.env.repo}/W${process.env.week}`) || 
+               a.href.includes(`/${process.env.repo}/w${process.env.week}`)
     })
     
     if (anchors.length > 0) {
@@ -106,7 +107,38 @@ async function allHasBacklink(students) {
     return Promise.resolve(fulfilled)
 }
 
-async function checkTop10(student) {
+async function checkTop10(student) {   
+    const links = await getTop10Links()
+    const limit = plimit(5)
+    const checkUp = links.map((link) => limit(urlExist, link))
+    const result = await Promise.allSettled(checkUp)
+    const active = result.filter(checked => checked.status != 'rejected')
+                         .map(student => student.value)
+
+    if (active.length > 9) {
+        Grader.existLinks(student)
+        return Promise.resolve(student)
+    }
+
+    const inactive = zip(result, links).filter((checked) => checked[0].status == 'rejected')
+                                       .map((dest) => dest[1])
+    if (inactive.length > 0) 
+        Grader.linksNotExist(student, inactive)
+    
+     return Promise.reject(student)
+}
+
+async function allHasTop10(students) {
+    const limit = plimit(5) // check 5 students at the same time | 5*5 = 25 available pool
+    const checkUp = students.map((student) => limit(checkTop10, student))
+    const result = await Promise.allSettled(checkUp)
+    const complete = result.filter(checked => checked.status != 'rejected')
+                           .map(student => student.value)
+    
+    return Promise.resolve(complete)
+}
+
+async function getTop10Links(student) {
     const link = `https://${student}.github.io/${process.env.repo}/W${process.env.week}/`
     let retry = process.env.retry
     
@@ -147,41 +179,12 @@ async function checkTop10(student) {
         anchors = await dom.window.document.querySelectorAll('a[href]')
     
     // in case the bottom-most query is reached, filter links from the same site
-    const links = Array.from(anchors)
-                       .map(a => a.href)
-                       .filter(a => !a.includes(`/${process.env.repo}/`) || 
-                                    !a.includes(`/${process.env.repo}/W${process.env.week}`) || 
-                                    !a.includes(`/${process.env.repo}/w${process.env.week}`) || 
-                                    !a.includes(student.toLowerCase()))
-                
-
-    const limit = plimit(5)
-    const checkUp = links.map((link) => limit(urlExist, link))
-    const result = await Promise.allSettled(checkUp)
-    const active = result.filter(checked => checked.status != 'rejected')
-                         .map(student => student.value)
-
-    if (active.length > 9) {
-        Grader.existLinks(student)
-        return Promise.resolve(student)
-    }
-
-    const inactive = zip(result, links).filter((checked) => checked[0].status == 'rejected')
-                                       .map((dest) => dest[1])
-    if (inactive.length > 0) 
-        Grader.linksNotExist(student, inactive)
-    
-     return Promise.reject(student)
+    return Promise.resolve(Array.from(anchors)
+                  .map(a => a.href)
+                  .filter(a => !a.includes(`/${process.env.repo}/`) || 
+                               !a.includes(`/${process.env.repo}/W${process.env.week}`) || 
+                               !a.includes(`/${process.env.repo}/w${process.env.week}`) || 
+                               !a.includes(student.toLowerCase())))
 }
 
-async function allHasTop10(students) {
-    const limit = plimit(5) // check 5 students at the same time | 5*5 = 25 available pool
-    const checkUp = students.map((student) => limit(checkTop10, student))
-    const result = await Promise.allSettled(checkUp)
-    const complete = result.filter(checked => checked.status != 'rejected')
-                           .map(student => student.value)
-    
-    return Promise.resolve(complete)
-}
-
-export { allHasRepo, allHasWeek, allHasBacklink, allHasTop10 }
+export { allHasRepo, allHasWeek, allHasBacklink, allHasTop10, getTop10Links }
