@@ -49,9 +49,23 @@ const Grader = (() => {
         instance[username]['failed']['top10'] = links;
     }
     
-    function startManualReview(username) {
-        const data = instance[username].get('manual', false)
-        if (!data) instance[username]['manual'] = [0, 0, 0, 0, 0, 0]
+    function resetManual(username) {
+        // instance[username]['manual'] = [1, 1, 1, 0, 0, 0]
+        instance[username]['data'][3] = 0
+        instance[username]['data'][5] = 0
+        instance[username]['data'][4] = 0
+    }
+    
+    function linkIsRelevant(username) {
+        instance[username]['data'][3] = 1
+    }
+    
+    function linkHasValidDescription(username) {
+        instance[username]['data'][4] = 1
+    }
+    
+    function linkIsAmazing(username) {
+        instance[username]['data'][5] = 1
     }
 
     async function writeReport() {
@@ -129,7 +143,10 @@ const Grader = (() => {
         linksNotExist,
         
         weekUnreachable,
-        startManualReview,
+        resetManual,
+        linkIsRelevant,
+        linkHasValidDescription,
+        linkIsAmazing,
 
         writeReport,
         saveState,

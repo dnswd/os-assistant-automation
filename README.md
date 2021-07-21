@@ -22,8 +22,8 @@ not using it entirely.
 ## TODOs
 - [ ] Assisting manual review
   - [ ] CLI
-  - [ ] Playwright step function
-  - [ ] Listen to key events
+  - [X] Playwright step function
+  - [X] Listen to key events
   - [X] Save current state for later work
   - [ ] Load saved state
 - [X] Better rejection handling
@@ -37,7 +37,7 @@ not using it entirely.
     Using Binary search, I conclude that result would be consistent with pool size < 80.
     But not always guaranteed. Hence manual review would be able to override automatic review.
 
-- [ ] Pages with heavy client-side rendering might invoke TimeoutError as it's just too heavy.
+- [ ] Pages with heavy client-side rendering may invoke TimeoutError as it's just too heavy to load.
 
 ## Contributing
 Just create a pull request, I'm not fancy. Don't forget to credit your own work.

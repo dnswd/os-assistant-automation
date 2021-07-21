@@ -22,9 +22,9 @@ async function entry() {
     // console.log(step)
 
     const students = ['dnswd']
+    Grader.buildSchema(students)
     await PW.ready(students)
     await PW.run()
-    await new Promise(r => setTimeout(r, 10000));
     await PW.close()
 }
 readEnv()

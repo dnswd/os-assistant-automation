@@ -158,33 +158,34 @@ async function getTop10Links(student) {
          }
     } while (!dom && retry--)
         
-    let anchors = await dom.window.document.querySelectorAll('ol li a[href]:first-child')
+    let anchors = dom.window.document.querySelectorAll('ol li a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('h2 a[href]:first-child')
+        anchors = dom.window.document.querySelectorAll('h2 a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('h3 a[href]:first-child')
+        anchors = dom.window.document.querySelectorAll('h3 a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('h4 a[href]:first-child')
+        anchors = dom.window.document.querySelectorAll('h4 a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('h5 a[href]:first-child')
+        anchors = dom.window.document.querySelectorAll('h5 a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('h6 a[href]:first-child')
+        anchors = dom.window.document.querySelectorAll('h6 a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('b  a[href]:first-child')
+        anchors = dom.window.document.querySelectorAll('b  a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('p  a[href]:first-child')
+        anchors = dom.window.document.querySelectorAll('p  a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('ul li a[href]:first-child')
+        anchors = dom.window.document.querySelectorAll('ul li a[href]:first-child')
     if (anchors.length === 0) 
-        anchors = await dom.window.document.querySelectorAll('a[href]')
+        anchors = dom.window.document.querySelectorAll('a[href]')
     
     // in case the bottom-most query is reached, filter links from the same site
-    return Promise.resolve(Array.from(anchors)
-                  .map(a => a.href)
-                  .filter(a => !a.includes(`/${process.env.repo}/`) || 
-                               !a.includes(`/${process.env.repo}/W${process.env.week}`) || 
-                               !a.includes(`/${process.env.repo}/w${process.env.week}`) || 
-                               !a.includes(student.toLowerCase())))
+    return Promise.resolve(
+            Array.from(anchors)
+                 .map(a => a.href)
+                 .filter(a => !a.includes(`/${process.env.repo}/`) || 
+                            !a.includes(`/${process.env.repo}/W${process.env.week}`) || 
+                            !a.includes(`/${process.env.repo}/w${process.env.week}`) || 
+                            !a.includes(student.toLowerCase())))
 }
 
 export { allHasRepo, allHasWeek, allHasBacklink, allHasTop10, getTop10Links }
